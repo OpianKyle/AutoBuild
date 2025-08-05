@@ -5,7 +5,7 @@ This is a comprehensive private equity sales funnel application built as a full-
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
-UI Design preference: Sidebar navigation layout (changed August 5, 2025)
+UI Design preference: HubSpot-inspired sidebar layout with clean, modern styling (changed August 5, 2025)
 
 # System Architecture
 
