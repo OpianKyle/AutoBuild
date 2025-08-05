@@ -56,13 +56,13 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="text-gold text-lg font-semibold mb-4">🚀 INVESTMENT GUIDE</div>
+              <div className="text-gold text-lg font-semibold mb-4 uppercase tracking-wider">Investment Guide</div>
               <h1 className="text-5xl font-playfair font-bold leading-tight mb-6">
                 How to Turn R50k into 
                 <span className="text-gold"> R200k+</span> with Private Equity
               </h1>
               <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                📈 Discover 5 Proven Strategies to Grow Your Wealth with Private Equity – Even If You're Starting with Just R50k
+                Discover 5 Proven Strategies to Grow Your Wealth with Private Equity – Even If You're Starting with Just R50k
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
@@ -84,14 +84,19 @@ export default function Landing() {
               </div>
             </div>
             <div className="relative">
-              <Card className="transform rotate-3 hover:rotate-0 transition-transform duration-300">
-                <CardContent className="p-6">
-                  <div className="bg-gradient-to-br from-gold/10 to-gold/30 rounded-lg h-64 flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <ChartLine className="mx-auto text-4xl text-gold mb-4" size={48} />
-                      <p className="font-semibold text-lg">FREE Investment Guide</p>
-                      <p className="text-sm opacity-90">R50k to R200k+ Strategy</p>
-                      <div className="mt-4 text-xs bg-gold text-navy px-3 py-1 rounded-full inline-block">
+              <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
+                <CardContent className="p-8">
+                  <div className="text-center text-white">
+                    <div className="mb-6">
+                      <h3 className="text-2xl font-semibold mb-4">Investment Guide</h3>
+                      <div className="h-32 w-full bg-gradient-to-r from-gold/20 to-gold/40 rounded-lg flex items-center justify-center mb-4">
+                        <ChartLine className="text-gold" size={64} />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="font-medium">Private Equity Strategies</p>
+                      <p className="text-sm text-blue-100">R50k to R200k+ Growth Plan</p>
+                      <div className="inline-block bg-gold text-navy px-4 py-2 rounded-md text-sm font-medium mt-3">
                         5 Proven Methods
                       </div>
                     </div>
@@ -116,35 +121,35 @@ export default function Landing() {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div>
-              <h3 className="text-2xl font-semibold text-navy mb-6">✅ Learn how to:</h3>
+              <h3 className="text-2xl font-semibold text-navy mb-6">Learn How To:</h3>
               <ul className="space-y-4 text-lg">
                 <li className="flex items-start">
-                  <ChartLine className="text-gold mr-3 mt-1 flex-shrink-0" size={20} />
+                  <div className="w-2 h-2 bg-gold rounded-full mt-3 mr-4 flex-shrink-0"></div>
                   <span>Access high-growth startups & buyouts with R50k</span>
                 </li>
                 <li className="flex items-start">
-                  <ChartLine className="text-gold mr-3 mt-1 flex-shrink-0" size={20} />
+                  <div className="w-2 h-2 bg-gold rounded-full mt-3 mr-4 flex-shrink-0"></div>
                   <span>Earn 20%+ annual returns (beating stocks & property)</span>
                 </li>
                 <li className="flex items-start">
-                  <ChartLine className="text-gold mr-3 mt-1 flex-shrink-0" size={20} />
+                  <div className="w-2 h-2 bg-gold rounded-full mt-3 mr-4 flex-shrink-0"></div>
                   <span>Build a diversified portfolio for long-term wealth</span>
                 </li>
               </ul>
             </div>
             
             <div>
-              <h3 className="text-2xl font-semibold text-navy mb-6">✅ What's Inside the Free Guide:</h3>
+              <h3 className="text-2xl font-semibold text-navy mb-6">What's Inside the Free Guide:</h3>
               <div className="space-y-4">
-                <Card className="p-4 border-l-4 border-gold">
+                <div className="border-l-4 border-gold pl-6 py-3">
                   <p className="font-semibold text-navy">1. 5 Private Equity Strategies for R50k investors</p>
-                </Card>
-                <Card className="p-4 border-l-4 border-gold">
+                </div>
+                <div className="border-l-4 border-gold pl-6 py-3">
                   <p className="font-semibold text-navy">2. Case Studies: How others grew R50k to R150k+</p>
-                </Card>
-                <Card className="p-4 border-l-4 border-gold">
+                </div>
+                <div className="border-l-4 border-gold pl-6 py-3">
                   <p className="font-semibold text-navy">3. Tax Benefits & Risk Management Tips</p>
-                </Card>
+                </div>
               </div>
             </div>
           </div>
@@ -155,7 +160,7 @@ export default function Landing() {
       <section className="py-16 bg-light-gray">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-playfair font-bold text-navy mb-8">
-            🎯 Who Is This For?
+            Who Is This For?
           </h2>
           <p className="text-xl text-dark-gray mb-8">This guide is perfect for:</p>
           
@@ -193,7 +198,7 @@ export default function Landing() {
             <CardContent className="p-8 md:p-12">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-playfair font-bold text-navy mb-4">
-                  📥 Download Your Free Guide Now
+                  Download Your Free Guide Now
                 </h2>
                 <p className="text-lg text-dark-gray">
                   "How to Turn R50k into R200k+ with Private Equity" - Learn 5 proven strategies and start building wealth today.
@@ -210,7 +215,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-playfair font-bold text-navy mb-4">
-              🌟 What Our Investors Say
+              What Our Investors Say
             </h2>
             <p className="text-lg text-dark-gray">Real results from real South African investors</p>
           </div>
@@ -267,7 +272,7 @@ export default function Landing() {
       <section className="py-16 bg-gold/10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-playfair font-bold text-navy mb-4">
-            🎁 Exclusive Bonus Offer
+            Exclusive Bonus Offer
           </h2>
           <Card className="bg-white shadow-lg border-2 border-gold">
             <CardContent className="p-8">
@@ -295,7 +300,7 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-playfair font-bold text-navy mb-4">
-              ❓ Frequently Asked Questions
+              Frequently Asked Questions
             </h2>
           </div>
           
@@ -306,7 +311,7 @@ export default function Landing() {
                   "Is private equity safe for small investors?"
                 </h3>
                 <p className="text-dark-gray">
-                  ✅ Yes! Our guide explains how to mitigate risks and choose vetted opportunities. 
+                  Yes! Our guide explains how to mitigate risks and choose vetted opportunities. 
                   We show you exactly how to evaluate investments and protect your capital.
                 </p>
               </CardContent>
@@ -318,7 +323,7 @@ export default function Landing() {
                   "Can I really start with just R50k?"
                 </h3>
                 <p className="text-dark-gray">
-                  ✅ Absolutely! We'll show you low-minimum funds and strategies specifically 
+                  Absolutely! We'll show you low-minimum funds and strategies specifically 
                   designed for investors starting with R50k or more.
                 </p>
               </CardContent>
@@ -331,7 +336,7 @@ export default function Landing() {
       <section className="py-20 bg-navy text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-playfair font-bold mb-4">
-            📥 Don't Miss Out – Download Your Free Guide Today!
+            Don't Miss Out – Download Your Free Guide Today!
           </h2>
           <p className="text-xl text-blue-100 mb-8">
             Join thousands of South Africans already building wealth through private equity
