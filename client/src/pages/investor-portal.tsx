@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChartLine, LogOut, Wallet, TrendingUp, FileText, Download } from "lucide-react";
+import { Investment } from "@shared/schema";
 
 export default function InvestorPortal() {
   const { user } = useAuth();
 
-  const { data: investments = [], isLoading } = useQuery({
+  const { data: investments = [], isLoading } = useQuery<Investment[]>({
     queryKey: ["/api/investments"],
   });
 
@@ -17,8 +18,8 @@ export default function InvestorPortal() {
   };
 
   // Calculate portfolio metrics
-  const totalInvestment = investments.reduce((sum: number, inv: any) => sum + parseFloat(inv.amount || 0), 0);
-  const totalCurrentValue = investments.reduce((sum: number, inv: any) => sum + parseFloat(inv.currentValue || inv.amount || 0), 0);
+  const totalInvestment = investments.reduce((sum, inv) => sum + parseFloat(inv.amount || "0"), 0);
+  const totalCurrentValue = investments.reduce((sum, inv) => sum + parseFloat(inv.currentValue || inv.amount || "0"), 0);
   const totalReturn = totalInvestment > 0 ? ((totalCurrentValue - totalInvestment) / totalInvestment) * 100 : 0;
 
   if (isLoading) {

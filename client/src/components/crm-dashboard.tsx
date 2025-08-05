@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Edit, Mail, Phone, Users } from "lucide-react";
+import { Plus, Search, Edit, Mail, Phone, Users, Database } from "lucide-react";
+import { Lead, LeadStats } from "@shared/schema";
 
 export default function CRMDashboard() {
   const { toast } = useToast();
@@ -16,11 +17,11 @@ export default function CRMDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const { data: leads = [], isLoading } = useQuery({
+  const { data: leads = [], isLoading } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
   });
 
-  const { data: leadStats } = useQuery({
+  const { data: leadStats } = useQuery<LeadStats>({
     queryKey: ["/api/analytics/leads"],
   });
 
@@ -40,6 +41,29 @@ export default function CRMDashboard() {
       toast({
         title: "Error",
         description: "Failed to update lead",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const createSampleDataMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", "/api/admin/create-sample-data", {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/analytics/leads"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/email-sequences"] });
+      toast({
+        title: "Success",
+        description: "Sample data created successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create sample data",
         variant: "destructive",
       });
     },
@@ -74,7 +98,7 @@ export default function CRMDashboard() {
     });
   };
 
-  const filteredLeads = leads.filter((lead: any) => {
+  const filteredLeads = leads.filter((lead) => {
     const matchesSearch = 
       lead.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lead.email?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -97,10 +121,20 @@ export default function CRMDashboard() {
           <h2 className="text-3xl font-playfair font-bold text-navy mb-2">CRM & Lead Management</h2>
           <p className="text-dark-gray">Manage your leads and track the sales pipeline</p>
         </div>
-        <Button className="bg-gold text-navy hover:bg-gold/90">
-          <Plus className="mr-2" size={16} />
-          Add Lead
-        </Button>
+        <div className="flex space-x-2">
+          <Button 
+            variant="outline" 
+            onClick={() => createSampleDataMutation.mutate()}
+            disabled={createSampleDataMutation.isPending}
+          >
+            <Database className="mr-2" size={16} />
+            Add Sample Data
+          </Button>
+          <Button className="bg-gold text-navy hover:bg-gold/90">
+            <Plus className="mr-2" size={16} />
+            Add Lead
+          </Button>
+        </div>
       </div>
 
       {/* Pipeline Overview */}
@@ -193,13 +227,13 @@ export default function CRMDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredLeads.map((lead: any) => (
+                {filteredLeads.map((lead) => (
                   <TableRow key={lead.id}>
                     <TableCell>
                       <div>
                         <div className="font-medium text-gray-900">{lead.firstName}</div>
                         <div className="text-sm text-gray-500">
-                          {new Date(lead.createdAt).toLocaleDateString()}
+                          {new Date(lead.createdAt || new Date()).toLocaleDateString()}
                         </div>
                       </div>
                     </TableCell>

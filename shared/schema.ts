@@ -212,3 +212,27 @@ export type EmailSequence = typeof emailSequences.$inferSelect;
 export type InsertEmailTemplate = z.infer<typeof insertEmailTemplateSchema>;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;
 export type EmailSend = typeof emailSends.$inferSelect;
+
+// Analytics types
+export type LeadStats = {
+  total: number;
+  new: number;
+  qualified: number;
+  consultation: number;
+  closed: number;
+};
+
+export type InvestmentStats = {
+  totalInvestments: number;
+  totalAmount: number;
+  totalCurrentValue: number;
+  activeInvestors: number;
+};
+
+export type EmailStats = {
+  totalSent: number;
+  totalOpened: number;
+  totalClicked: number;
+  openRate: number;
+  clickRate: number;
+};

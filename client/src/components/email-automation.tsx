@@ -3,13 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Mail, Eye, Edit, BarChart3, Pause } from "lucide-react";
+import { EmailStats, EmailSequence } from "@shared/schema";
 
 export default function EmailAutomation() {
-  const { data: emailStats } = useQuery({
+  const { data: emailStats } = useQuery<EmailStats>({
     queryKey: ["/api/analytics/emails"],
   });
 
-  const { data: sequences = [] } = useQuery({
+  const { data: sequences = [] } = useQuery<EmailSequence[]>({
     queryKey: ["/api/email-sequences"],
   });
 

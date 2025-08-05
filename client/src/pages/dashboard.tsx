@@ -9,20 +9,21 @@ import BookingSystem from "@/components/booking-system";
 import AnalyticsDashboard from "@/components/analytics-dashboard";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
+import { LeadStats, InvestmentStats, EmailStats } from "@shared/schema";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
-  const { data: leadStats } = useQuery({
+  const { data: leadStats } = useQuery<LeadStats>({
     queryKey: ["/api/analytics/leads"],
   });
 
-  const { data: investmentStats } = useQuery({
+  const { data: investmentStats } = useQuery<InvestmentStats>({
     queryKey: ["/api/analytics/investments"],
   });
 
-  const { data: emailStats } = useQuery({
+  const { data: emailStats } = useQuery<EmailStats>({
     queryKey: ["/api/analytics/emails"],
   });
 

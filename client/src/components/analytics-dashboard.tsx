@@ -1,17 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Download, Calendar, DollarSign, ArrowDown, TrendingUp, Mail, MousePointer } from "lucide-react";
+import { LeadStats, InvestmentStats, EmailStats } from "@shared/schema";
 
 export default function AnalyticsDashboard() {
-  const { data: leadStats } = useQuery({
+  const { data: leadStats } = useQuery<LeadStats>({
     queryKey: ["/api/analytics/leads"],
   });
 
-  const { data: investmentStats } = useQuery({
+  const { data: investmentStats } = useQuery<InvestmentStats>({
     queryKey: ["/api/analytics/investments"],
   });
 
-  const { data: emailStats } = useQuery({
+  const { data: emailStats } = useQuery<EmailStats>({
     queryKey: ["/api/analytics/emails"],
   });
 

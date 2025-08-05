@@ -194,6 +194,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Sample data route for testing
+  app.post('/api/admin/create-sample-data', isAuthenticated, async (req, res) => {
+    try {
+      // Create sample leads
+      const sampleLeads = [
+        {
+          firstName: "Sarah",
+          lastName: "Williams", 
+          email: "sarah.williams@example.com",
+          phone: "+27 82 123 4567",
+          investmentBudget: "R500,000 - R1,000,000",
+          status: "qualified" as const,
+          score: 85,
+          source: "Website"
+        },
+        {
+          firstName: "Michael",
+          lastName: "Roberts",
+          email: "michael.roberts@example.com", 
+          phone: "+27 83 234 5678",
+          investmentBudget: "R1,000,000 - R5,000,000",
+          status: "consultation" as const,
+          score: 72,
+          source: "Referral"
+        },
+        {
+          firstName: "Lisa",
+          lastName: "Chen",
+          email: "lisa.chen@example.com",
+          phone: "+27 84 345 6789", 
+          investmentBudget: "R250,000 - R500,000",
+          status: "new" as const,
+          score: 68,
+          source: "LinkedIn"
+        },
+        {
+          firstName: "David",
+          lastName: "Thompson",
+          email: "david.thompson@example.com",
+          phone: "+27 85 456 7890",
+          investmentBudget: "R2,000,000+",
+          status: "closed" as const,
+          score: 95,
+          source: "Website"
+        }
+      ];
+
+      for (const leadData of sampleLeads) {
+        await storage.createLead(leadData);
+      }
+
+      // Create sample bookings
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(10, 0, 0, 0);
+
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      nextWeek.setHours(14, 0, 0, 0);
+
+      const sampleBookings = [
+        {
+          firstName: "Sarah",
+          lastName: "Williams",
+          email: "sarah.williams@example.com",
+          phone: "+27 82 123 4567",
+          meetingType: "investment_consultation",
+          scheduledAt: tomorrow,
+          duration: 60,
+          status: "confirmed" as const
+        },
+        {
+          firstName: "Michael", 
+          lastName: "Roberts",
+          email: "michael.roberts@example.com",
+          phone: "+27 83 234 5678",
+          meetingType: "portfolio_review",
+          scheduledAt: nextWeek,
+          duration: 45,
+          status: "confirmed" as const
+        }
+      ];
+
+      for (const bookingData of sampleBookings) {
+        await storage.createBooking(bookingData);
+      }
+
+      // Create sample email sequence
+      const emailSequence = await storage.createEmailSequence({
+        name: "Welcome Series",
+        description: "7-email sequence for new leads",
+        isActive: true,
+        triggerEvent: "lead_capture"
+      });
+
+      // Create sample email templates
+      await storage.createEmailTemplate({
+        sequenceId: emailSequence.id,
+        subject: "Welcome to PE Capital - Your Investment Journey Starts Here",
+        content: "Thank you for downloading our investment guide...",
+        order: 1
+      });
+
+      await storage.createEmailTemplate({
+        sequenceId: emailSequence.id,
+        subject: "Private Equity 101: Understanding the Basics",
+        content: "In this email, we'll cover the fundamentals of private equity...",
+        order: 2
+      });
+
+      res.json({ message: "Sample data created successfully" });
+    } catch (error) {
+      console.error("Error creating sample data:", error);
+      res.status(500).json({ message: "Failed to create sample data" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
