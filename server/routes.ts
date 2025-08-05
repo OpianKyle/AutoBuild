@@ -260,20 +260,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lastName: "Williams",
           email: "sarah.williams@example.com",
           phone: "+27 82 123 4567",
-          meetingType: "investment_consultation",
+          type: "consultation",
           scheduledAt: tomorrow,
           duration: 60,
-          status: "confirmed" as const
+          status: "scheduled" as const
         },
         {
           firstName: "Michael", 
           lastName: "Roberts",
           email: "michael.roberts@example.com",
           phone: "+27 83 234 5678",
-          meetingType: "portfolio_review",
+          type: "portfolio_review",
           scheduledAt: nextWeek,
           duration: 45,
-          status: "confirmed" as const
+          status: "scheduled" as const
         }
       ];
 
@@ -292,6 +292,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create sample email templates
       await storage.createEmailTemplate({
         sequenceId: emailSequence.id,
+        name: "Welcome Email",
         subject: "Welcome to PE Capital - Your Investment Journey Starts Here",
         content: "Thank you for downloading our investment guide...",
         order: 1
@@ -299,6 +300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       await storage.createEmailTemplate({
         sequenceId: emailSequence.id,
+        name: "Education Email",
         subject: "Private Equity 101: Understanding the Basics",
         content: "In this email, we'll cover the fundamentals of private equity...",
         order: 2
