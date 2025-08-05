@@ -112,7 +112,7 @@ export default function Dashboard() {
                     <div>
                       <p className="text-sm font-medium text-gray-600">Conversion Rate</p>
                       <p className="text-3xl font-bold text-navy">
-                        {leadStats?.total > 0 ? ((leadStats.closed / leadStats.total) * 100).toFixed(1) : 0}%
+                        {leadStats?.total && leadStats?.closed ? ((leadStats.closed / leadStats.total) * 100).toFixed(1) : 0}%
                       </p>
                       <p className="text-sm text-green-600">↗ 2.1% from last month</p>
                     </div>
