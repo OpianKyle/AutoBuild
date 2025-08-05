@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChartLine, LogOut } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ChartLine, LogOut, Users, BarChart3, Mail, Calendar, Home } from "lucide-react";
 import CRMDashboard from "@/components/crm-dashboard";
 import EmailAutomation from "@/components/email-automation";
 import BookingSystem from "@/components/booking-system";
@@ -14,6 +14,14 @@ import { LeadStats, InvestmentStats, EmailStats } from "@shared/schema";
 export default function Dashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  
+  const sidebarItems = [
+    { id: "overview", label: "Overview", icon: Home },
+    { id: "crm", label: "CRM", icon: Users },
+    { id: "analytics", label: "Analytics", icon: BarChart3 },
+    { id: "email", label: "Email", icon: Mail },
+    { id: "booking", label: "Booking", icon: Calendar },
+  ];
 
   const { data: leadStats } = useQuery<LeadStats>({
     queryKey: ["/api/analytics/leads"],
@@ -32,62 +40,81 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-light-gray">
-      {/* Navigation Header */}
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+    <div className="min-h-screen bg-light-gray flex">
+      {/* Sidebar */}
+      <div className="w-64 bg-white shadow-lg border-r border-gray-200 flex flex-col">
+        {/* Logo */}
+        <div className="p-6 border-b border-gray-200">
+          <h1 className="text-xl font-playfair font-bold text-navy">
+            <ChartLine className="inline-block text-gold mr-2" size={20} />
+            PE Capital
+          </h1>
+        </div>
+        
+        {/* Navigation */}
+        <nav className="flex-1 p-4">
+          <ul className="space-y-2">
+            {sidebarItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => setActiveTab(item.id)}
+                    className={cn(
+                      "w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors",
+                      activeTab === item.id
+                        ? "bg-gold/10 text-navy border-l-4 border-gold"
+                        : "text-dark-gray hover:bg-gray-50 hover:text-navy"
+                    )}
+                  >
+                    <Icon size={20} className="mr-3" />
+                    <span className="font-medium">{item.label}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+        
+        {/* User Profile */}
+        <div className="p-4 border-t border-gray-200">
+          <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <h1 className="text-xl font-playfair font-bold text-navy mr-8">
-                <ChartLine className="inline-block text-gold mr-2" size={20} />
-                PE Capital Dashboard
-              </h1>
+              {user?.profileImageUrl ? (
+                <img 
+                  src={user.profileImageUrl} 
+                  alt="Profile" 
+                  className="w-8 h-8 rounded-full object-cover mr-3"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gray-300 mr-3" />
+              )}
+              <span className="font-medium text-dark-gray">
+                {user?.firstName || "Admin"}
+              </span>
             </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center text-dark-gray">
-                {user?.profileImageUrl ? (
-                  <img 
-                    src={user.profileImageUrl} 
-                    alt="Profile" 
-                    className="w-8 h-8 rounded-full object-cover mr-2"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-300 mr-2" />
-                )}
-                <span className="font-medium">
-                  {user?.firstName || "Admin"}
-                </span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="text-dark-gray hover:text-navy"
-              >
-                <LogOut size={16} />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="text-dark-gray hover:text-navy"
+            >
+              <LogOut size={16} />
+            </Button>
           </div>
         </div>
-      </nav>
+      </div>
 
-      {/* Dashboard Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="crm">CRM</TabsTrigger>
-            <TabsTrigger value="email">Email</TabsTrigger>
-            <TabsTrigger value="booking">Booking</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          </TabsList>
+      {/* Main Content */}
+      <div className="flex-1 p-8 overflow-auto">
+        <div className="max-w-7xl mx-auto space-y-8">{/* Content based on activeTab */}
 
-          <TabsContent value="overview" className="space-y-8">
-            <div>
-              <h2 className="text-3xl font-playfair font-bold text-navy mb-2">Dashboard Overview</h2>
-              <p className="text-dark-gray">Monitor your sales funnel performance and key metrics</p>
-            </div>
+          {activeTab === "overview" && (
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-3xl font-playfair font-bold text-navy mb-2">Dashboard Overview</h2>
+                <p className="text-dark-gray">Monitor your sales funnel performance and key metrics</p>
+              </div>
             
             {/* Key Metrics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -191,25 +218,15 @@ export default function Dashboard() {
                   <p className="text-sm text-gray-600">This month</p>
                 </CardContent>
               </Card>
+              </div>
             </div>
-          </TabsContent>
+          )}
 
-          <TabsContent value="crm">
-            <CRMDashboard />
-          </TabsContent>
-
-          <TabsContent value="email">
-            <EmailAutomation />
-          </TabsContent>
-
-          <TabsContent value="booking">
-            <BookingSystem />
-          </TabsContent>
-
-          <TabsContent value="analytics">
-            <AnalyticsDashboard />
-          </TabsContent>
-        </Tabs>
+          {activeTab === "crm" && <CRMDashboard />}
+          {activeTab === "email" && <EmailAutomation />}
+          {activeTab === "booking" && <BookingSystem />}
+          {activeTab === "analytics" && <AnalyticsDashboard />}
+        </div>
       </div>
     </div>
   );

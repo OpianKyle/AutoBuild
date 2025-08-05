@@ -5,11 +5,12 @@ This is a comprehensive private equity sales funnel application built as a full-
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
+UI Design preference: Sidebar navigation layout (changed August 5, 2025)
 
 # System Architecture
 
 ## Frontend Architecture
-The client is built using React with TypeScript, utilizing a modern component-based architecture. The UI is built with shadcn/ui components providing a consistent design system with Tailwind CSS for styling. The application uses Wouter for client-side routing and TanStack Query for server state management and API calls.
+The client is built using React with TypeScript, utilizing a modern component-based architecture. The UI uses a sidebar navigation layout with shadcn/ui components providing a consistent design system and Tailwind CSS for styling. The application uses conditional rendering for navigation instead of traditional routing and TanStack Query for server state management and API calls.
 
 **Key Frontend Decisions:**
 - **React + TypeScript**: Chosen for type safety and modern development experience
