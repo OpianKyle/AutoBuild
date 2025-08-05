@@ -34,10 +34,17 @@ export default function Landing() {
                 <a href="#" className="text-dark-gray hover:text-navy px-3 py-2 text-sm font-medium">Services</a>
                 <a href="#" className="text-dark-gray hover:text-navy px-3 py-2 text-sm font-medium">Contact</a>
                 <Button 
-                  onClick={() => window.location.href = '/api/login'}
-                  className="bg-navy text-white hover:bg-navy/90"
+                  onClick={() => window.location.href = '/auth'}
+                  className="bg-navy text-white hover:bg-navy/90 mr-2"
                 >
                   Sign In
+                </Button>
+                <Button 
+                  onClick={() => window.location.href = '/auth'}
+                  variant="outline"
+                  className="border-navy text-navy hover:bg-navy hover:text-white"
+                >
+                  Sign Up
                 </Button>
               </div>
             </div>

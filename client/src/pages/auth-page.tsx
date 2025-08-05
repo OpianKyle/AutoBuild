@@ -34,7 +34,13 @@ export default function AuthPage() {
 
   // Redirect if already logged in
   if (user) {
-    setLocation("/");
+    if (user.role === "admin") {
+      setLocation("/dashboard");
+    } else if (user.role === "investor") {
+      setLocation("/portal");
+    } else {
+      setLocation("/");
+    }
     return null;
   }
 
@@ -59,16 +65,28 @@ export default function AuthPage() {
 
   const onLogin = (data: LoginFormData) => {
     loginMutation.mutate(data, {
-      onSuccess: () => {
-        setLocation("/");
+      onSuccess: (user) => {
+        if (user.role === "admin") {
+          setLocation("/dashboard");
+        } else if (user.role === "investor") {
+          setLocation("/portal");
+        } else {
+          setLocation("/");
+        }
       },
     });
   };
 
   const onRegister = (data: RegisterFormData) => {
     registerMutation.mutate(data, {
-      onSuccess: () => {
-        setLocation("/");
+      onSuccess: (user) => {
+        if (user.role === "admin") {
+          setLocation("/dashboard");
+        } else if (user.role === "investor") {
+          setLocation("/portal");
+        } else {
+          setLocation("/");
+        }
       },
     });
   };
