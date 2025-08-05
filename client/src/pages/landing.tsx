@@ -56,14 +56,13 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
+              <div className="text-gold text-lg font-semibold mb-4">🚀 INVESTMENT GUIDE</div>
               <h1 className="text-5xl font-playfair font-bold leading-tight mb-6">
-                Invest R50k in 
-                <span className="text-gold"> Private Equity</span>
-                with Confidence
+                How to Turn R50k into 
+                <span className="text-gold"> R200k+</span> with Private Equity
               </h1>
               <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                Download your free guide and learn 5 proven strategies for high returns. 
-                Join thousands of South African investors building wealth through private equity.
+                📈 Discover 5 Proven Strategies to Grow Your Wealth with Private Equity – Even If You're Starting with Just R50k
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
@@ -72,7 +71,7 @@ export default function Landing() {
                   size="lg"
                 >
                   <Download className="mr-2" size={20} />
-                  Get Free Guide
+                  Get Instant Access
                 </Button>
                 <Button 
                   variant="outline"
@@ -80,18 +79,21 @@ export default function Landing() {
                   size="lg"
                 >
                   <Play className="mr-2" size={20} />
-                  Watch Demo
+                  Free Webinar
                 </Button>
               </div>
             </div>
             <div className="relative">
               <Card className="transform rotate-3 hover:rotate-0 transition-transform duration-300">
                 <CardContent className="p-6">
-                  <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
-                    <div className="text-center text-dark-gray">
+                  <div className="bg-gradient-to-br from-gold/10 to-gold/30 rounded-lg h-64 flex items-center justify-center">
+                    <div className="text-center text-white">
                       <ChartLine className="mx-auto text-4xl text-gold mb-4" size={48} />
-                      <p className="font-semibold">Investment Dashboard Preview</p>
-                      <p className="text-sm text-gray-600">Track your portfolio performance</p>
+                      <p className="font-semibold text-lg">FREE Investment Guide</p>
+                      <p className="text-sm opacity-90">R50k to R200k+ Strategy</p>
+                      <div className="mt-4 text-xs bg-gold text-navy px-3 py-1 rounded-full inline-block">
+                        5 Proven Methods
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -100,46 +102,85 @@ export default function Landing() {
           </div>
         </div>
       </section>
-      {/* Features Section */}
+      {/* Why This Guide Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-playfair font-bold text-navy mb-4">
-              Why Choose PE Capital?
+              Why This Guide?
             </h2>
             <p className="text-xl text-dark-gray max-w-3xl mx-auto">
-              Our automated platform makes private equity investing accessible, transparent, and profitable for South African investors.
+              Learn how to access high-growth opportunities and build long-term wealth with private equity investments.
             </p>
           </div>
           
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div>
+              <h3 className="text-2xl font-semibold text-navy mb-6">✅ Learn how to:</h3>
+              <ul className="space-y-4 text-lg">
+                <li className="flex items-start">
+                  <ChartLine className="text-gold mr-3 mt-1 flex-shrink-0" size={20} />
+                  <span>Access high-growth startups & buyouts with R50k</span>
+                </li>
+                <li className="flex items-start">
+                  <ChartLine className="text-gold mr-3 mt-1 flex-shrink-0" size={20} />
+                  <span>Earn 20%+ annual returns (beating stocks & property)</span>
+                </li>
+                <li className="flex items-start">
+                  <ChartLine className="text-gold mr-3 mt-1 flex-shrink-0" size={20} />
+                  <span>Build a diversified portfolio for long-term wealth</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="text-2xl font-semibold text-navy mb-6">✅ What's Inside the Free Guide:</h3>
+              <div className="space-y-4">
+                <Card className="p-4 border-l-4 border-gold">
+                  <p className="font-semibold text-navy">1. 5 Private Equity Strategies for R50k investors</p>
+                </Card>
+                <Card className="p-4 border-l-4 border-gold">
+                  <p className="font-semibold text-navy">2. Case Studies: How others grew R50k to R150k+</p>
+                </Card>
+                <Card className="p-4 border-l-4 border-gold">
+                  <p className="font-semibold text-navy">3. Tax Benefits & Risk Management Tips</p>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Who Is This For Section */}
+      <section className="py-16 bg-light-gray">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-playfair font-bold text-navy mb-8">
+            🎯 Who Is This For?
+          </h2>
+          <p className="text-xl text-dark-gray mb-8">This guide is perfect for:</p>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center p-8 hover:shadow-lg transition-shadow duration-300">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
-                <div className="bg-gold bg-opacity-10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
-                  <Shield className="text-2xl text-gold" size={32} />
-                </div>
-                <h3 className="text-xl font-semibold text-navy mb-4">Secure & Regulated</h3>
-                <p className="text-dark-gray">Fully compliant with South African financial regulations with bank-grade security.</p>
+                <Users className="text-gold mx-auto mb-4" size={48} />
+                <h3 className="font-semibold text-navy mb-2">Professionals</h3>
+                <p className="text-dark-gray">with R50k+ to invest</p>
               </CardContent>
             </Card>
             
-            <Card className="text-center p-8 hover:shadow-lg transition-shadow duration-300">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
-                <div className="bg-gold bg-opacity-10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
-                  <ChartLine className="text-2xl text-gold" size={32} />
-                </div>
-                <h3 className="text-xl font-semibold text-navy mb-4">Proven Returns</h3>
-                <p className="text-dark-gray">Average returns of 15-25% annually with carefully vetted investment opportunities.</p>
+                <Shield className="text-gold mx-auto mb-4" size={48} />
+                <h3 className="font-semibold text-navy mb-2">Business Owners</h3>
+                <p className="text-dark-gray">looking to diversify</p>
               </CardContent>
             </Card>
             
-            <Card className="text-center p-8 hover:shadow-lg transition-shadow duration-300">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
-                <div className="bg-gold bg-opacity-10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
-                  <Users className="text-2xl text-gold" size={32} />
-                </div>
-                <h3 className="text-xl font-semibold text-navy mb-4">Expert Support</h3>
-                <p className="text-dark-gray">Dedicated investment advisors to guide you through every step of your journey.</p>
+                <ChartLine className="text-gold mx-auto mb-4" size={48} />
+                <h3 className="font-semibold text-navy mb-2">Savvy Investors</h3>
+                <p className="text-dark-gray">tired of low stock market returns</p>
               </CardContent>
             </Card>
           </div>
@@ -152,10 +193,10 @@ export default function Landing() {
             <CardContent className="p-8 md:p-12">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-playfair font-bold text-navy mb-4">
-                  Download Your Free Investment Guide
+                  📥 Download Your Free Guide Now
                 </h2>
                 <p className="text-lg text-dark-gray">
-                  "How to Invest R50k in Private Equity" - Learn from industry experts and start building wealth today.
+                  "How to Turn R50k into R200k+ with Private Equity" - Learn 5 proven strategies and start building wealth today.
                 </p>
               </div>
               
@@ -169,71 +210,138 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-playfair font-bold text-navy mb-4">
-              Trusted by South African Investors
+              🌟 What Our Investors Say
+            </h2>
+            <p className="text-lg text-dark-gray">Real results from real South African investors</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <Card className="bg-gray-50 border-2 border-gold/20">
+              <CardContent className="p-8">
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={20} className="text-gold fill-gold" />
+                  ))}
+                </div>
+                <p className="text-dark-gray italic text-lg mb-4">
+                  "This guide helped me understand private equity in simple terms. I invested R50k and already see great returns!"
+                </p>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 rounded-full bg-gold/20 mr-4 flex items-center justify-center">
+                    <Users size={24} className="text-gold" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-navy">John D.</h4>
+                    <p className="text-sm text-dark-gray">Cape Town</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gray-50 border-2 border-gold/20">
+              <CardContent className="p-8">
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={20} className="text-gold fill-gold" />
+                  ))}
+                </div>
+                <p className="text-dark-gray italic text-lg mb-4">
+                  "Finally, a resource that makes private equity accessible for small investors. Highly recommend!"
+                </p>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 rounded-full bg-gold/20 mr-4 flex items-center justify-center">
+                    <Users size={24} className="text-gold" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-navy">Sarah M.</h4>
+                    <p className="text-sm text-dark-gray">Johannesburg</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Bonus Offer Section */}
+      <section className="py-16 bg-gold/10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-playfair font-bold text-navy mb-4">
+            🎁 Exclusive Bonus Offer
+          </h2>
+          <Card className="bg-white shadow-lg border-2 border-gold">
+            <CardContent className="p-8">
+              <p className="text-xl text-dark-gray mb-6">
+                Sign up now and get a <strong className="text-gold">free invite</strong> to our exclusive webinar:
+              </p>
+              <h3 className="text-2xl font-semibold text-navy mb-4">
+                "How to Invest R50k in Private Equity for High Returns"
+              </h3>
+              <Button 
+                onClick={scrollToForm}
+                className="bg-gold text-navy px-8 py-4 text-lg font-semibold hover:bg-gold/90"
+                size="lg"
+              >
+                <Download className="mr-2" size={20} />
+                Claim Your Free Access
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-16 bg-light-gray">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-playfair font-bold text-navy mb-4">
+              ❓ Frequently Asked Questions
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="bg-gray-50">
+          <div className="space-y-6">
+            <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gray-300 mr-4 flex items-center justify-center">
-                    <Users size={24} className="text-gray-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-navy">Thabo Mthembu</h4>
-                    <p className="text-sm text-dark-gray">Cape Town Investor</p>
-                  </div>
-                </div>
-                <div className="flex mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} className="text-gold fill-gold" />
-                  ))}
-                </div>
-                <p className="text-dark-gray italic">"Increased my investment by 180% in just 2 years. The platform is incredibly user-friendly."</p>
+                <h3 className="text-xl font-semibold text-navy mb-3">
+                  "Is private equity safe for small investors?"
+                </h3>
+                <p className="text-dark-gray">
+                  ✅ Yes! Our guide explains how to mitigate risks and choose vetted opportunities. 
+                  We show you exactly how to evaluate investments and protect your capital.
+                </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-gray-50">
+            <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gray-300 mr-4 flex items-center justify-center">
-                    <Users size={24} className="text-gray-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-navy">Sarah Williams</h4>
-                    <p className="text-sm text-dark-gray">Johannesburg Entrepreneur</p>
-                  </div>
-                </div>
-                <div className="flex mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} className="text-gold fill-gold" />
-                  ))}
-                </div>
-                <p className="text-dark-gray italic">"The automated system saved me hours of research. Now I can focus on growing my business."</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gray-50">
-              <CardContent className="p-6">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gray-300 mr-4 flex items-center justify-center">
-                    <Users size={24} className="text-gray-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-navy">Michael Roberts</h4>
-                    <p className="text-sm text-dark-gray">Durban Professional</p>
-                  </div>
-                </div>
-                <div className="flex mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} className="text-gold fill-gold" />
-                  ))}
-                </div>
-                <p className="text-dark-gray italic">"Best investment decision I've ever made. The returns speak for themselves."</p>
+                <h3 className="text-xl font-semibold text-navy mb-3">
+                  "Can I really start with just R50k?"
+                </h3>
+                <p className="text-dark-gray">
+                  ✅ Absolutely! We'll show you low-minimum funds and strategies specifically 
+                  designed for investors starting with R50k or more.
+                </p>
               </CardContent>
             </Card>
           </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="py-20 bg-navy text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-playfair font-bold mb-4">
+            📥 Don't Miss Out – Download Your Free Guide Today!
+          </h2>
+          <p className="text-xl text-blue-100 mb-8">
+            Join thousands of South Africans already building wealth through private equity
+          </p>
+          
+          <Card className="bg-white text-navy shadow-xl">
+            <CardContent className="p-8">
+              <LeadCaptureForm />
+            </CardContent>
+          </Card>
         </div>
       </section>
     </div>

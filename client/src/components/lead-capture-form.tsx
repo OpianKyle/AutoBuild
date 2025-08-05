@@ -14,10 +14,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Download, Lock } from "lucide-react";
 
 const leadFormSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
+  firstName: z.string().min(1, "Name is required"),
   email: z.string().email("Please enter a valid email address"),
   phone: z.string().optional(),
+  age: z.string().min(1, "Please select your age range"),
   investmentBudget: z.string().min(1, "Please select your investment budget"),
+  moneyReadyAvailable: z.string().min(1, "Please indicate if money is readily available"),
   consent: z.boolean().refine(val => val === true, "You must agree to the terms"),
 });
 
@@ -33,7 +35,9 @@ export default function LeadCaptureForm() {
       firstName: "",
       email: "",
       phone: "",
+      age: "",
       investmentBudget: "",
+      moneyReadyAvailable: "",
       consent: false,
     },
   });
@@ -44,7 +48,9 @@ export default function LeadCaptureForm() {
         firstName: data.firstName,
         email: data.email,
         phone: data.phone || "",
+        age: data.age,
         investmentBudget: data.investmentBudget,
+        moneyReadyAvailable: data.moneyReadyAvailable,
         leadSource: "website",
         status: "new",
       });
@@ -95,12 +101,13 @@ export default function LeadCaptureForm() {
           name="firstName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-dark-gray">First Name</FormLabel>
+              <FormLabel className="text-sm font-medium text-dark-gray">Name</FormLabel>
               <FormControl>
                 <Input
                   {...field}
-                  placeholder="Enter your first name"
+                  placeholder="Enter your name"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
+                  data-testid="input-name"
                 />
               </FormControl>
               <FormMessage />
@@ -113,13 +120,14 @@ export default function LeadCaptureForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-dark-gray">Email Address</FormLabel>
+              <FormLabel className="text-sm font-medium text-dark-gray">Email</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   type="email"
                   placeholder="Enter your email"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
+                  data-testid="input-email"
                 />
               </FormControl>
               <FormMessage />
@@ -132,15 +140,42 @@ export default function LeadCaptureForm() {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-dark-gray">Phone Number</FormLabel>
+              <FormLabel className="text-sm font-medium text-dark-gray">Phone (optional)</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   type="tel"
                   placeholder="+27 XX XXX XXXX"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
+                  data-testid="input-phone"
                 />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="age"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-sm font-medium text-dark-gray">Age</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent" data-testid="select-age">
+                    <SelectValue placeholder="Select your age range" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="18-25">18-25</SelectItem>
+                  <SelectItem value="26-35">26-35</SelectItem>
+                  <SelectItem value="36-45">36-45</SelectItem>
+                  <SelectItem value="46-55">46-55</SelectItem>
+                  <SelectItem value="56-65">56-65</SelectItem>
+                  <SelectItem value="65+">65+</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -151,17 +186,39 @@ export default function LeadCaptureForm() {
           name="investmentBudget"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-dark-gray">Investment Budget</FormLabel>
+              <FormLabel className="text-sm font-medium text-dark-gray">Amount Available to Invest</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent">
+                  <SelectTrigger className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent" data-testid="select-investment">
                     <SelectValue placeholder="Select your budget" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="50k-100k">R50k - R100k</SelectItem>
-                  <SelectItem value="100k-500k">R100k - R500k</SelectItem>
-                  <SelectItem value="500k+">R500k+</SelectItem>
+                  <SelectItem value="R50k-R100k">R50k - R100k</SelectItem>
+                  <SelectItem value="R100k-R200k">R100k - R200k</SelectItem>
+                  <SelectItem value="R200k+">R200k+</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="moneyReadyAvailable"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-sm font-medium text-dark-gray">Is the money readily available?</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent" data-testid="select-money-available">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Yes">Yes</SelectItem>
+                  <SelectItem value="No">No</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -194,6 +251,7 @@ export default function LeadCaptureForm() {
           type="submit"
           disabled={createLeadMutation.isPending}
           className="w-full bg-gold text-navy px-6 py-4 text-lg font-semibold hover:bg-gold/90 transition-all duration-200 shadow-lg"
+          data-testid="button-submit"
         >
           {createLeadMutation.isPending ? (
             <>
@@ -203,7 +261,7 @@ export default function LeadCaptureForm() {
           ) : (
             <>
               <Download className="mr-2" size={20} />
-              Download Free Guide
+              Get Instant Access
             </>
           )}
         </Button>

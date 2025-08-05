@@ -48,7 +48,9 @@ export const leads = pgTable("leads", {
   lastName: varchar("last_name"),
   email: varchar("email").notNull(),
   phone: varchar("phone"),
+  age: varchar("age").notNull(),
   investmentBudget: varchar("investment_budget"),
+  moneyReadyAvailable: varchar("money_ready_available").notNull(),
   source: varchar("source"),
   status: varchar("status").notNull().default("new"), // new, qualified, consultation, closed, lost
   score: integer("score").default(0),
