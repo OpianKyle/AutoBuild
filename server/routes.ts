@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
-import { insertLeadSchema, insertBookingSchema, insertInvestmentSchema } from "@shared/schema";
+import { insertLeadSchema, insertBookingSchema, insertInvestmentSchema, insertEmailSequenceSchema, insertEmailTemplateSchema } from "@shared/schema";
 import Stripe from "stripe";
 
 // Optional Stripe configuration - payment processing will be disabled if keys are not provided

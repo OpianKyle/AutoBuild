@@ -320,8 +320,52 @@ export class MemoryStorage implements IStorage {
   private emailTemplates: Map<string, EmailTemplate> = new Map();
   private emailSends: Map<string, EmailSend> = new Map();
 
+  constructor() {
+    this.initializeDefaultData();
+  }
+
   private generateId(): string {
     return Math.random().toString(36).substr(2, 9);
+  }
+
+  private async initializeDefaultData() {
+    // Create default admin user for testing
+    // Password is hashed version of "admin123"
+    const defaultAdmin: User = {
+      id: "admin-001",
+      username: "admin",
+      email: "admin@example.com",
+      password: "c4b3fe69f256b17e292b5c7acca98def1dea48dcf442adf850d9baf7855049f411a30653934db7ddd7be8ca810b6509e9ba28c1e85fe5eeb4ddcda18ae64083d.350e8dc766dfab89ee6ad31f2bed8869",
+      firstName: "Admin",
+      lastName: "User",
+      profileImageUrl: null,
+      role: "admin",
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    // Create default investor user for testing  
+    const defaultInvestor: User = {
+      id: "investor-001",
+      username: "investor",
+      email: "investor@example.com", 
+      password: "c4b3fe69f256b17e292b5c7acca98def1dea48dcf442adf850d9baf7855049f411a30653934db7ddd7be8ca810b6509e9ba28c1e85fe5eeb4ddcda18ae64083d.350e8dc766dfab89ee6ad31f2bed8869",
+      firstName: "John",
+      lastName: "Investor",
+      profileImageUrl: null,
+      role: "investor",
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    this.users.set(defaultAdmin.id, defaultAdmin);
+    this.users.set(defaultInvestor.id, defaultInvestor);
+    
+    console.log("Initialized default users: admin/admin123, investor/admin123");
   }
 
   // User operations
