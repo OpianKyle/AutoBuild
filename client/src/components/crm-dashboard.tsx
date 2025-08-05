@@ -8,14 +8,29 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Edit, Mail, Phone, Users, Database } from "lucide-react";
-import { Lead, LeadStats } from "@shared/schema";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Plus, Search, Edit, Mail, Phone, Users, Database, X } from "lucide-react";
+import { Lead, LeadStats, InsertLead } from "@shared/schema";
 
 export default function CRMDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [formData, setFormData] = useState<Partial<InsertLead>>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    investmentBudget: "",
+    status: "new",
+    score: 50,
+    source: ""
+  });
 
   const { data: leads = [], isLoading } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
@@ -69,6 +84,70 @@ export default function CRMDashboard() {
     },
   });
 
+  const createLeadMutation = useMutation({
+    mutationFn: async (leadData: Partial<InsertLead>) => {
+      await apiRequest("POST", "/api/leads", leadData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/analytics/leads"] });
+      setShowCreateDialog(false);
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        investmentBudget: "",
+        status: "new",
+        score: 50,
+        source: ""
+      });
+      toast({
+        title: "Success",
+        description: "Lead created successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create lead",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateLeadFormMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<InsertLead> }) => {
+      await apiRequest("PUT", `/api/leads/${id}`, updates);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/analytics/leads"] });
+      setEditingLead(null);
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        investmentBudget: "",
+        status: "new",
+        score: 50,
+        source: ""
+      });
+      toast({
+        title: "Success",
+        description: "Lead updated successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update lead",
+        variant: "destructive",
+      });
+    },
+  });
+
   const getStatusBadge = (status: string) => {
     const statusColors = {
       new: "bg-blue-100 text-blue-800",
@@ -96,6 +175,51 @@ export default function CRMDashboard() {
       id: leadId,
       updates: { status: newStatus },
     });
+  };
+
+  const handleCreateLead = () => {
+    if (!formData.firstName || !formData.email) {
+      toast({
+        title: "Error",
+        description: "Please fill in required fields (Name and Email)",
+        variant: "destructive",
+      });
+      return;
+    }
+    createLeadMutation.mutate(formData);
+  };
+
+  const handleEditLead = (lead: Lead) => {
+    setEditingLead(lead);
+    setFormData({
+      firstName: lead.firstName || "",
+      lastName: lead.lastName || "",
+      email: lead.email || "",
+      phone: lead.phone || "",
+      investmentBudget: lead.investmentBudget || "",
+      status: lead.status || "new",
+      score: lead.score || 50,
+      source: lead.source || ""
+    });
+  };
+
+  const handleUpdateLead = () => {
+    if (!editingLead || !formData.firstName || !formData.email) {
+      toast({
+        title: "Error",
+        description: "Please fill in required fields (Name and Email)",
+        variant: "destructive",
+      });
+      return;
+    }
+    updateLeadFormMutation.mutate({
+      id: editingLead.id,
+      updates: formData
+    });
+  };
+
+  const handleFormChange = (field: keyof InsertLead, value: string | number) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const filteredLeads = leads.filter((lead) => {
@@ -130,10 +254,118 @@ export default function CRMDashboard() {
             <Database className="mr-2" size={16} />
             Add Sample Data
           </Button>
-          <Button className="bg-gold text-navy hover:bg-gold/90">
-            <Plus className="mr-2" size={16} />
-            Add Lead
-          </Button>
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <DialogTrigger asChild>
+              <Button className="bg-gold text-navy hover:bg-gold/90">
+                <Plus className="mr-2" size={16} />
+                Add Lead
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Create New Lead</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">First Name *</Label>
+                    <Input
+                      id="firstName"
+                      value={formData.firstName}
+                      onChange={(e) => handleFormChange("firstName", e.target.value)}
+                      placeholder="John"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input
+                      id="lastName"
+                      value={formData.lastName}
+                      onChange={(e) => handleFormChange("lastName", e.target.value)}
+                      placeholder="Doe"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleFormChange("email", e.target.value)}
+                    placeholder="john@example.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => handleFormChange("phone", e.target.value)}
+                    placeholder="+27 82 123 4567"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="investmentBudget">Investment Budget</Label>
+                  <Select value={formData.investmentBudget} onValueChange={(value) => handleFormChange("investmentBudget", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select budget range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="R100,000 - R250,000">R100,000 - R250,000</SelectItem>
+                      <SelectItem value="R250,000 - R500,000">R250,000 - R500,000</SelectItem>
+                      <SelectItem value="R500,000 - R1,000,000">R500,000 - R1,000,000</SelectItem>
+                      <SelectItem value="R1,000,000 - R5,000,000">R1,000,000 - R5,000,000</SelectItem>
+                      <SelectItem value="R5,000,000+">R5,000,000+</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="source">Lead Source</Label>
+                  <Select value={formData.source} onValueChange={(value) => handleFormChange("source", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select source" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Website">Website</SelectItem>
+                      <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+                      <SelectItem value="Referral">Referral</SelectItem>
+                      <SelectItem value="Cold Call">Cold Call</SelectItem>
+                      <SelectItem value="Event">Event</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="score">Lead Score (0-100)</Label>
+                  <Input
+                    id="score"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={formData.score}
+                    onChange={(e) => handleFormChange("score", parseInt(e.target.value) || 0)}
+                  />
+                </div>
+                <div className="flex space-x-2 pt-4">
+                  <Button
+                    onClick={handleCreateLead}
+                    disabled={createLeadMutation.isPending}
+                    className="flex-1 bg-gold text-navy hover:bg-gold/90"
+                  >
+                    {createLeadMutation.isPending ? "Creating..." : "Create Lead"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowCreateDialog(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -280,7 +512,11 @@ export default function CRMDashboard() {
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleEditLead(lead)}
+                        >
                           <Edit size={16} />
                         </Button>
                         <Button variant="ghost" size="sm">
@@ -298,6 +534,129 @@ export default function CRMDashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Lead Dialog */}
+      <Dialog open={!!editingLead} onOpenChange={() => setEditingLead(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Lead</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="editFirstName">First Name *</Label>
+                <Input
+                  id="editFirstName"
+                  value={formData.firstName}
+                  onChange={(e) => handleFormChange("firstName", e.target.value)}
+                  placeholder="John"
+                />
+              </div>
+              <div>
+                <Label htmlFor="editLastName">Last Name</Label>
+                <Input
+                  id="editLastName"
+                  value={formData.lastName}
+                  onChange={(e) => handleFormChange("lastName", e.target.value)}
+                  placeholder="Doe"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="editEmail">Email *</Label>
+              <Input
+                id="editEmail"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleFormChange("email", e.target.value)}
+                placeholder="john@example.com"
+              />
+            </div>
+            <div>
+              <Label htmlFor="editPhone">Phone</Label>
+              <Input
+                id="editPhone"
+                value={formData.phone}
+                onChange={(e) => handleFormChange("phone", e.target.value)}
+                placeholder="+27 82 123 4567"
+              />
+            </div>
+            <div>
+              <Label htmlFor="editStatus">Status</Label>
+              <Select value={formData.status} onValueChange={(value) => handleFormChange("status", value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="new">New</SelectItem>
+                  <SelectItem value="qualified">Qualified</SelectItem>
+                  <SelectItem value="consultation">Consultation</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                  <SelectItem value="lost">Lost</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="editInvestmentBudget">Investment Budget</Label>
+              <Select value={formData.investmentBudget} onValueChange={(value) => handleFormChange("investmentBudget", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select budget range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="R100,000 - R250,000">R100,000 - R250,000</SelectItem>
+                  <SelectItem value="R250,000 - R500,000">R250,000 - R500,000</SelectItem>
+                  <SelectItem value="R500,000 - R1,000,000">R500,000 - R1,000,000</SelectItem>
+                  <SelectItem value="R1,000,000 - R5,000,000">R1,000,000 - R5,000,000</SelectItem>
+                  <SelectItem value="R5,000,000+">R5,000,000+</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="editSource">Lead Source</Label>
+              <Select value={formData.source} onValueChange={(value) => handleFormChange("source", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select source" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Website">Website</SelectItem>
+                  <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+                  <SelectItem value="Referral">Referral</SelectItem>
+                  <SelectItem value="Cold Call">Cold Call</SelectItem>
+                  <SelectItem value="Event">Event</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="editScore">Lead Score (0-100)</Label>
+              <Input
+                id="editScore"
+                type="number"
+                min="0"
+                max="100"
+                value={formData.score}
+                onChange={(e) => handleFormChange("score", parseInt(e.target.value) || 0)}
+              />
+            </div>
+            <div className="flex space-x-2 pt-4">
+              <Button
+                onClick={handleUpdateLead}
+                disabled={updateLeadFormMutation.isPending}
+                className="flex-1 bg-gold text-navy hover:bg-gold/90"
+              >
+                {updateLeadFormMutation.isPending ? "Updating..." : "Update Lead"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setEditingLead(null)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

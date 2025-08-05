@@ -45,10 +45,11 @@ export const users = pgTable("users", {
 export const leads = pgTable("leads", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   firstName: varchar("first_name").notNull(),
+  lastName: varchar("last_name"),
   email: varchar("email").notNull(),
   phone: varchar("phone"),
   investmentBudget: varchar("investment_budget"),
-  leadSource: varchar("lead_source").default("website"),
+  source: varchar("source"),
   status: varchar("status").notNull().default("new"), // new, qualified, consultation, closed, lost
   score: integer("score").default(0),
   notes: text("notes"),
