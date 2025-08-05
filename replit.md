@@ -27,12 +27,13 @@ The backend follows a REST API pattern built with Express.js and TypeScript. The
 - **Middleware Pattern**: Used for authentication, logging, and error handling
 
 ## Authentication System
-The application integrates with Replit's OpenID Connect (OIDC) authentication system using Passport.js. Session management is handled with PostgreSQL-backed session storage for persistence and scalability.
+The application uses traditional username/password authentication with Passport.js local strategy. Session management is handled with PostgreSQL-backed session storage for persistence and scalability.
 
 **Authentication Decisions:**
-- **Replit OIDC**: Leverages platform-native authentication for seamless integration
-- **Passport.js**: Industry-standard authentication middleware with OIDC strategy
+- **Local Authentication**: Username/password system for full control over user management
+- **Passport.js**: Industry-standard authentication middleware with local strategy
 - **Session-based Auth**: Chosen over JWT for better security with session invalidation capabilities
+- **Password Hashing**: Uses scrypt with salt for secure password storage
 
 ## Data Storage
 The application uses PostgreSQL as the primary database with Drizzle ORM for type-safe database operations. The schema is designed to support the complete sales funnel workflow from lead capture through investment completion.
@@ -55,8 +56,8 @@ Stripe integration handles investment payments and subscription management, with
 - **connect-pg-simple**: PostgreSQL session store for Express sessions
 
 ## Authentication Services
-- **Replit Authentication**: OpenID Connect provider for user authentication
-- **Passport.js**: Authentication middleware with OpenID Connect strategy
+- **Local Authentication**: Username/password authentication system
+- **Passport.js**: Authentication middleware with local strategy for user authentication
 
 ## Payment Processing (Optional)
 - **Stripe**: Payment processing platform for handling investments and subscriptions
