@@ -44,9 +44,8 @@ export default function Landing() {
           </div>
         </div>
       </nav>
-
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-navy via-navy to-blue-900 text-white">
+      <section className="from-navy via-navy to-blue-900 text-white bg-[#1e2b4d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -94,7 +93,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* Features Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -140,7 +138,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* Lead Capture Section */}
       <section id="leadCaptureSection" className="py-20 bg-light-gray">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -160,7 +157,6 @@ export default function Landing() {
           </Card>
         </div>
       </section>
-
       {/* Social Proof Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
