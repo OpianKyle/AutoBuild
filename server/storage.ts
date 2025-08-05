@@ -310,4 +310,287 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+// Memory storage implementation for development
+export class MemoryStorage implements IStorage {
+  private users: Map<string, User> = new Map();
+  private leads: Map<string, Lead> = new Map();
+  private investments: Map<string, Investment> = new Map();
+  private bookings: Map<string, Booking> = new Map();
+  private emailSequences: Map<string, EmailSequence> = new Map();
+  private emailTemplates: Map<string, EmailTemplate> = new Map();
+  private emailSends: Map<string, EmailSend> = new Map();
+
+  private generateId(): string {
+    return Math.random().toString(36).substr(2, 9);
+  }
+
+  // User operations
+  async getUser(id: string): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const users = Array.from(this.users.values());
+    return users.find(user => user.username === username);
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const users = Array.from(this.users.values());
+    return users.find(user => user.email === email);
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const user: User = {
+      id: this.generateId(),
+      ...userData,
+      role: userData.role ?? "lead",
+      firstName: userData.firstName ?? null,
+      lastName: userData.lastName ?? null,
+      profileImageUrl: userData.profileImageUrl ?? null,
+      stripeCustomerId: userData.stripeCustomerId ?? null,
+      stripeSubscriptionId: userData.stripeSubscriptionId ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(user.id, user);
+    return user;
+  }
+
+  async updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<User> {
+    const user = this.users.get(userId);
+    if (!user) throw new Error("User not found");
+    
+    const updatedUser = {
+      ...user,
+      stripeCustomerId,
+      stripeSubscriptionId: stripeSubscriptionId ?? null,
+      updatedAt: new Date(),
+    };
+    this.users.set(userId, updatedUser);
+    return updatedUser;
+  }
+
+  // Lead operations
+  async createLead(leadData: InsertLead): Promise<Lead> {
+    const lead: Lead = {
+      id: this.generateId(),
+      ...leadData,
+      status: leadData.status ?? "new",
+      score: leadData.score ?? 0,
+      lastName: leadData.lastName ?? null,
+      phone: leadData.phone ?? null,
+      investmentBudget: leadData.investmentBudget ?? null,
+      source: leadData.source ?? null,
+      notes: leadData.notes ?? null,
+      userId: leadData.userId ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.leads.set(lead.id, lead);
+    return lead;
+  }
+
+  async getLeads(limit = 50, offset = 0): Promise<Lead[]> {
+    const allLeads = Array.from(this.leads.values())
+      .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
+    return allLeads.slice(offset, offset + limit);
+  }
+
+  async getLeadById(id: string): Promise<Lead | undefined> {
+    return this.leads.get(id);
+  }
+
+  async updateLead(id: string, updates: Partial<InsertLead>): Promise<Lead> {
+    const lead = this.leads.get(id);
+    if (!lead) throw new Error("Lead not found");
+    
+    const updatedLead = {
+      ...lead,
+      ...updates,
+      updatedAt: new Date(),
+    };
+    this.leads.set(id, updatedLead);
+    return updatedLead;
+  }
+
+  // Investment operations
+  async createInvestment(investmentData: InsertInvestment): Promise<Investment> {
+    const investment: Investment = {
+      id: this.generateId(),
+      ...investmentData,
+      fundDescription: investmentData.fundDescription ?? null,
+      currentValue: investmentData.currentValue ?? null,
+      returnPercentage: investmentData.returnPercentage ?? null,
+      status: investmentData.status ?? "active",
+      investmentDate: investmentData.investmentDate ?? new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.investments.set(investment.id, investment);
+    return investment;
+  }
+
+  async getInvestmentsByUserId(userId: string): Promise<Investment[]> {
+    return Array.from(this.investments.values())
+      .filter(inv => inv.userId === userId)
+      .sort((a, b) => b.investmentDate!.getTime() - a.investmentDate!.getTime());
+  }
+
+  async updateInvestment(id: string, updates: Partial<InsertInvestment>): Promise<Investment> {
+    const investment = this.investments.get(id);
+    if (!investment) throw new Error("Investment not found");
+    
+    const updatedInvestment = {
+      ...investment,
+      ...updates,
+      updatedAt: new Date(),
+    };
+    this.investments.set(id, updatedInvestment);
+    return updatedInvestment;
+  }
+
+  // Booking operations
+  async createBooking(bookingData: InsertBooking): Promise<Booking> {
+    const booking: Booking = {
+      id: this.generateId(),
+      ...bookingData,
+      leadId: bookingData.leadId ?? null,
+      userId: bookingData.userId ?? null,
+      duration: bookingData.duration ?? 30,
+      type: bookingData.type ?? "consultation",
+      status: bookingData.status ?? "scheduled",
+      meetingLink: bookingData.meetingLink ?? null,
+      notes: bookingData.notes ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.bookings.set(booking.id, booking);
+    return booking;
+  }
+
+  async getBookings(limit = 50, offset = 0): Promise<Booking[]> {
+    const allBookings = Array.from(this.bookings.values())
+      .sort((a, b) => b.scheduledAt.getTime() - a.scheduledAt.getTime());
+    return allBookings.slice(offset, offset + limit);
+  }
+
+  async getBookingsByUserId(userId: string): Promise<Booking[]> {
+    return Array.from(this.bookings.values())
+      .filter(booking => booking.userId === userId)
+      .sort((a, b) => b.scheduledAt.getTime() - a.scheduledAt.getTime());
+  }
+
+  async updateBooking(id: string, updates: Partial<InsertBooking>): Promise<Booking> {
+    const booking = this.bookings.get(id);
+    if (!booking) throw new Error("Booking not found");
+    
+    const updatedBooking = {
+      ...booking,
+      ...updates,
+      updatedAt: new Date(),
+    };
+    this.bookings.set(id, updatedBooking);
+    return updatedBooking;
+  }
+
+  // Email operations
+  async createEmailSequence(sequenceData: InsertEmailSequence): Promise<EmailSequence> {
+    const sequence: EmailSequence = {
+      id: this.generateId(),
+      ...sequenceData,
+      description: sequenceData.description ?? null,
+      isActive: sequenceData.isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.emailSequences.set(sequence.id, sequence);
+    return sequence;
+  }
+
+  async getEmailSequences(): Promise<EmailSequence[]> {
+    return Array.from(this.emailSequences.values())
+      .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
+  }
+
+  async createEmailTemplate(templateData: InsertEmailTemplate): Promise<EmailTemplate> {
+    const template: EmailTemplate = {
+      id: this.generateId(),
+      ...templateData,
+      sequenceId: templateData.sequenceId ?? null,
+      dayDelay: templateData.dayDelay ?? 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.emailTemplates.set(template.id, template);
+    return template;
+  }
+
+  async getEmailTemplatesBySequence(sequenceId: string): Promise<EmailTemplate[]> {
+    return Array.from(this.emailTemplates.values())
+      .filter(template => template.sequenceId === sequenceId)
+      .sort((a, b) => a.order - b.order);
+  }
+
+  async createEmailSend(templateId: string, leadId?: string, userId?: string): Promise<EmailSend> {
+    const emailSend: EmailSend = {
+      id: this.generateId(),
+      templateId,
+      leadId: leadId || null,
+      userId: userId || null,
+      sentAt: new Date(),
+      openedAt: null,
+      clickedAt: null,
+      status: "sent",
+    };
+    this.emailSends.set(emailSend.id, emailSend);
+    return emailSend;
+  }
+
+  // Analytics operations
+  async getLeadStats(): Promise<any> {
+    const allLeads = Array.from(this.leads.values());
+    const stats = {
+      total: allLeads.length,
+      new: allLeads.filter(l => l.status === "new").length,
+      qualified: allLeads.filter(l => l.status === "qualified").length,
+      consultation: allLeads.filter(l => l.status === "consultation").length,
+      closed: allLeads.filter(l => l.status === "closed").length,
+    };
+    return stats;
+  }
+
+  async getInvestmentStats(): Promise<any> {
+    const allInvestments = Array.from(this.investments.values());
+    const allUsers = Array.from(this.users.values());
+    
+    const totalAmount = allInvestments.reduce((sum, inv) => sum + parseFloat(inv.amount), 0);
+    const totalCurrentValue = allInvestments.reduce((sum, inv) => sum + parseFloat(inv.currentValue || "0"), 0);
+    const activeInvestors = allUsers.filter(u => u.role === "investor").length;
+
+    return {
+      totalInvestments: allInvestments.length,
+      totalAmount,
+      totalCurrentValue,
+      activeInvestors,
+    };
+  }
+
+  async getEmailStats(): Promise<any> {
+    const allSends = Array.from(this.emailSends.values());
+    const opened = allSends.filter(s => s.openedAt).length;
+    const clicked = allSends.filter(s => s.clickedAt).length;
+
+    return {
+      totalSent: allSends.length,
+      totalOpened: opened,
+      totalClicked: clicked,
+      openRate: allSends.length > 0 ? (opened / allSends.length) * 100 : 0,
+      clickRate: allSends.length > 0 ? (clicked / allSends.length) * 100 : 0,
+    };
+  }
+}
+
+// Use memory storage for development, database storage for production
+export const storage = process.env.NODE_ENV === "production" 
+  ? new DatabaseStorage() 
+  : new MemoryStorage();
