@@ -1,19 +1,88 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CalendarPlus, Calendar, Clock, Users, Video, ChevronLeft, ChevronRight } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function BookingSystem() {
-  const [selectedDate, setSelectedDate] = useState(15); // Mock selected date
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [selectedDate, setSelectedDate] = useState(15);
+  const [showBookingDialog, setShowBookingDialog] = useState(false);
+  const [bookingForm, setBookingForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    type: "consultation",
+    scheduledDate: "",
+    scheduledTime: "",
+    duration: 30
+  });
 
   const { data: bookings = [] } = useQuery({
     queryKey: ["/api/bookings"],
   });
+
+  const createBookingMutation = useMutation({
+    mutationFn: async (bookingData: any) => {
+      const scheduledAt = new Date(`${bookingData.scheduledDate}T${bookingData.scheduledTime}`);
+      await apiRequest("POST", "/api/bookings", {
+        leadId: null,
+        userId: null,
+        type: bookingData.type,
+        scheduledAt: scheduledAt,
+        duration: bookingData.duration,
+        status: "scheduled",
+        meetingLink: null,
+        notes: `${bookingData.firstName} ${bookingData.lastName} - ${bookingData.email} - ${bookingData.phone}`
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      setShowBookingDialog(false);
+      setBookingForm({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        type: "consultation",
+        scheduledDate: "",
+        scheduledTime: "",
+        duration: 30
+      });
+      toast({
+        title: "Success",
+        description: "Booking created successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create booking",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCreateBooking = () => {
+    if (!bookingForm.firstName || !bookingForm.email || !bookingForm.scheduledDate || !bookingForm.scheduledTime) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    createBookingMutation.mutate(bookingForm);
+  };
 
   // Mock booking stats
   const bookingStats = {
@@ -69,10 +138,124 @@ export default function BookingSystem() {
           <h2 className="text-3xl font-playfair font-bold text-navy mb-2">Booking System</h2>
           <p className="text-dark-gray">Manage consultation schedules and availability</p>
         </div>
-        <Button className="bg-gold text-navy hover:bg-gold/90">
-          <CalendarPlus className="mr-2" size={16} />
-          Add Availability
-        </Button>
+        <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
+          <DialogTrigger asChild>
+            <Button className="bg-gold text-navy hover:bg-gold/90">
+              <CalendarPlus className="mr-2" size={16} />
+              Book Appointment
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Book New Appointment</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="bookingFirstName">First Name *</Label>
+                  <Input
+                    id="bookingFirstName"
+                    value={bookingForm.firstName}
+                    onChange={(e) => setBookingForm(prev => ({ ...prev, firstName: e.target.value }))}
+                    placeholder="John"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="bookingLastName">Last Name</Label>
+                  <Input
+                    id="bookingLastName"
+                    value={bookingForm.lastName}
+                    onChange={(e) => setBookingForm(prev => ({ ...prev, lastName: e.target.value }))}
+                    placeholder="Doe"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="bookingEmail">Email *</Label>
+                <Input
+                  id="bookingEmail"
+                  type="email"
+                  value={bookingForm.email}
+                  onChange={(e) => setBookingForm(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="john@example.com"
+                />
+              </div>
+              <div>
+                <Label htmlFor="bookingPhone">Phone</Label>
+                <Input
+                  id="bookingPhone"
+                  value={bookingForm.phone}
+                  onChange={(e) => setBookingForm(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="+27 82 123 4567"
+                />
+              </div>
+              <div>
+                <Label htmlFor="bookingType">Meeting Type</Label>
+                <Select value={bookingForm.type} onValueChange={(value) => setBookingForm(prev => ({ ...prev, type: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="consultation">Investment Consultation</SelectItem>
+                    <SelectItem value="portfolio_review">Portfolio Review</SelectItem>
+                    <SelectItem value="follow_up">Follow-up Meeting</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="bookingDate">Date *</Label>
+                  <Input
+                    id="bookingDate"
+                    type="date"
+                    value={bookingForm.scheduledDate}
+                    onChange={(e) => setBookingForm(prev => ({ ...prev, scheduledDate: e.target.value }))}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="bookingTime">Time *</Label>
+                  <Input
+                    id="bookingTime"
+                    type="time"
+                    value={bookingForm.scheduledTime}
+                    onChange={(e) => setBookingForm(prev => ({ ...prev, scheduledTime: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="bookingDuration">Duration (minutes)</Label>
+                <Select value={bookingForm.duration.toString()} onValueChange={(value) => setBookingForm(prev => ({ ...prev, duration: parseInt(value) }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="30">30 minutes</SelectItem>
+                    <SelectItem value="45">45 minutes</SelectItem>
+                    <SelectItem value="60">60 minutes</SelectItem>
+                    <SelectItem value="90">90 minutes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex space-x-2 pt-4">
+                <Button
+                  onClick={handleCreateBooking}
+                  disabled={createBookingMutation.isPending}
+                  className="flex-1 bg-gold text-navy hover:bg-gold/90"
+                >
+                  {createBookingMutation.isPending ? "Booking..." : "Book Appointment"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowBookingDialog(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Booking Stats */}

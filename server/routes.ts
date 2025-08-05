@@ -117,6 +117,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Email routes
+  app.post('/api/email-sequences', isAuthenticated, async (req, res) => {
+    try {
+      const sequenceData = insertEmailSequenceSchema.parse(req.body);
+      const sequence = await storage.createEmailSequence(sequenceData);
+      res.json(sequence);
+    } catch (error) {
+      console.error("Error creating email sequence:", error);
+      res.status(400).json({ message: "Failed to create email sequence" });
+    }
+  });
+
   app.get('/api/email-sequences', isAuthenticated, async (req, res) => {
     try {
       const sequences = await storage.getEmailSequences();

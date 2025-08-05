@@ -1,11 +1,28 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Mail, Eye, Edit, BarChart3, Pause } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { EmailStats, EmailSequence } from "@shared/schema";
 
 export default function EmailAutomation() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    triggerEvent: "lead_capture"
+  });
+
   const { data: emailStats } = useQuery<EmailStats>({
     queryKey: ["/api/analytics/emails"],
   });
@@ -13,6 +30,40 @@ export default function EmailAutomation() {
   const { data: sequences = [] } = useQuery<EmailSequence[]>({
     queryKey: ["/api/email-sequences"],
   });
+
+  const createSequenceMutation = useMutation({
+    mutationFn: async (sequenceData: any) => {
+      await apiRequest("POST", "/api/email-sequences", sequenceData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/email-sequences"] });
+      setShowCreateDialog(false);
+      setFormData({ name: "", description: "", triggerEvent: "lead_capture" });
+      toast({
+        title: "Success",
+        description: "Email sequence created successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create email sequence",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCreateSequence = () => {
+    if (!formData.name) {
+      toast({
+        title: "Error",
+        description: "Please provide a sequence name",
+        variant: "destructive",
+      });
+      return;
+    }
+    createSequenceMutation.mutate(formData);
+  };
 
   // Mock email sequences data for demonstration
   const mockSequences = [
@@ -67,10 +118,69 @@ export default function EmailAutomation() {
           <h2 className="text-3xl font-playfair font-bold text-navy mb-2">Email Automation</h2>
           <p className="text-dark-gray">Manage automated email sequences and campaigns</p>
         </div>
-        <Button className="bg-gold text-navy hover:bg-gold/90">
-          <Plus className="mr-2" size={16} />
-          Create Campaign
-        </Button>
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogTrigger asChild>
+            <Button className="bg-gold text-navy hover:bg-gold/90">
+              <Plus className="mr-2" size={16} />
+              Create Campaign
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create Email Sequence</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="sequenceName">Sequence Name *</Label>
+                <Input
+                  id="sequenceName"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Welcome Series"
+                />
+              </div>
+              <div>
+                <Label htmlFor="sequenceDescription">Description</Label>
+                <Textarea
+                  id="sequenceDescription"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Describe this email sequence..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="triggerEvent">Trigger Event</Label>
+                <Select value={formData.triggerEvent} onValueChange={(value) => setFormData(prev => ({ ...prev, triggerEvent: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="lead_capture">Lead Capture</SelectItem>
+                    <SelectItem value="consultation_booked">Consultation Booked</SelectItem>
+                    <SelectItem value="investment_completed">Investment Completed</SelectItem>
+                    <SelectItem value="manual">Manual</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex space-x-2 pt-4">
+                <Button
+                  onClick={handleCreateSequence}
+                  disabled={createSequenceMutation.isPending}
+                  className="flex-1 bg-gold text-navy hover:bg-gold/90"
+                >
+                  {createSequenceMutation.isPending ? "Creating..." : "Create Sequence"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCreateDialog(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Email Performance Metrics */}
