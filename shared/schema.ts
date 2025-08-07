@@ -2,125 +2,125 @@ import { sql } from 'drizzle-orm';
 import { relations } from 'drizzle-orm';
 import {
   index,
-  jsonb,
-  pgTable,
+  json,
+  mysqlTable,
   timestamp,
   varchar,
   text,
-  integer,
+  int,
   decimal,
   boolean,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/mysql-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Session storage table (required for Replit Auth)
-export const sessions = pgTable(
+export const sessions = mysqlTable(
   "sessions",
   {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
+    sid: varchar("sid", { length: 255 }).primaryKey(),
+    sess: json("sess").notNull(),
     expire: timestamp("expire").notNull(),
   },
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
 // User storage table
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: varchar("username").unique().notNull(),
-  email: varchar("email").unique().notNull(),
-  password: varchar("password").notNull(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
-  role: varchar("role").notNull().default("lead"), // lead, investor, admin
-  stripeCustomerId: varchar("stripe_customer_id"),
-  stripeSubscriptionId: varchar("stripe_subscription_id"),
+export const users = mysqlTable("users", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  username: varchar("username", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  password: varchar("password", { length: 255 }).notNull(),
+  firstName: varchar("first_name", { length: 255 }),
+  lastName: varchar("last_name", { length: 255 }),
+  profileImageUrl: varchar("profile_image_url", { length: 1000 }),
+  role: varchar("role", { length: 50 }).notNull().default("lead"), // lead, investor, admin
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Leads table
-export const leads = pgTable("leads", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  firstName: varchar("first_name").notNull(),
-  lastName: varchar("last_name"),
-  email: varchar("email").notNull(),
-  phone: varchar("phone"),
-  age: varchar("age").notNull(),
-  investmentBudget: varchar("investment_budget"),
-  moneyReadyAvailable: varchar("money_ready_available").notNull(),
-  source: varchar("source"),
-  status: varchar("status").notNull().default("new"), // new, qualified, consultation, closed, lost
-  score: integer("score").default(0),
+export const leads = mysqlTable("leads", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  firstName: varchar("first_name", { length: 255 }).notNull(),
+  lastName: varchar("last_name", { length: 255 }),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  age: varchar("age", { length: 10 }).notNull(),
+  investmentBudget: varchar("investment_budget", { length: 100 }),
+  moneyReadyAvailable: varchar("money_ready_available", { length: 100 }).notNull(),
+  source: varchar("source", { length: 100 }),
+  status: varchar("status", { length: 50 }).notNull().default("new"), // new, qualified, consultation, closed, lost
+  score: int("score").default(0),
   notes: text("notes"),
-  userId: varchar("user_id").references(() => users.id),
+  userId: varchar("user_id", { length: 36 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Investments table
-export const investments = pgTable("investments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  fundName: varchar("fund_name").notNull(),
+export const investments = mysqlTable("investments", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: varchar("user_id", { length: 36 }).notNull(),
+  fundName: varchar("fund_name", { length: 255 }).notNull(),
   fundDescription: text("fund_description"),
   amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
   currentValue: decimal("current_value", { precision: 12, scale: 2 }),
   returnPercentage: decimal("return_percentage", { precision: 5, scale: 2 }),
-  status: varchar("status").notNull().default("active"), // active, closed, pending
+  status: varchar("status", { length: 50 }).notNull().default("active"), // active, closed, pending
   investmentDate: timestamp("investment_date").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Email sequences table
-export const emailSequences = pgTable("email_sequences", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(),
+export const emailSequences = mysqlTable("email_sequences", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   isActive: boolean("is_active").default(true),
-  triggerEvent: varchar("trigger_event").notNull(), // lead_capture, consultation_booked, etc.
+  triggerEvent: varchar("trigger_event", { length: 100 }).notNull(), // lead_capture, consultation_booked, etc.
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Email templates table
-export const emailTemplates = pgTable("email_templates", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  sequenceId: varchar("sequence_id").references(() => emailSequences.id),
-  name: varchar("name").notNull(),
-  subject: varchar("subject").notNull(),
+export const emailTemplates = mysqlTable("email_templates", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  sequenceId: varchar("sequence_id", { length: 36 }),
+  name: varchar("name", { length: 255 }).notNull(),
+  subject: varchar("subject", { length: 500 }).notNull(),
   content: text("content").notNull(),
-  dayDelay: integer("day_delay").default(0),
-  order: integer("order").notNull(),
+  dayDelay: int("day_delay").default(0),
+  order: int("order").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Email sends table
-export const emailSends = pgTable("email_sends", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  templateId: varchar("template_id").notNull().references(() => emailTemplates.id),
-  leadId: varchar("lead_id").references(() => leads.id),
-  userId: varchar("user_id").references(() => users.id),
+export const emailSends = mysqlTable("email_sends", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  templateId: varchar("template_id", { length: 36 }).notNull(),
+  leadId: varchar("lead_id", { length: 36 }),
+  userId: varchar("user_id", { length: 36 }),
   sentAt: timestamp("sent_at").defaultNow(),
   openedAt: timestamp("opened_at"),
   clickedAt: timestamp("clicked_at"),
-  status: varchar("status").notNull().default("sent"), // sent, delivered, opened, clicked, failed
+  status: varchar("status", { length: 50 }).notNull().default("sent"), // sent, delivered, opened, clicked, failed
 });
 
 // Bookings table
-export const bookings = pgTable("bookings", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  leadId: varchar("lead_id").references(() => leads.id),
-  userId: varchar("user_id").references(() => users.id),
+export const bookings = mysqlTable("bookings", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  leadId: varchar("lead_id", { length: 36 }),
+  userId: varchar("user_id", { length: 36 }),
   scheduledAt: timestamp("scheduled_at").notNull(),
-  duration: integer("duration").default(30), // minutes
-  type: varchar("type").notNull().default("consultation"), // consultation, portfolio_review
-  status: varchar("status").notNull().default("scheduled"), // scheduled, completed, cancelled, no_show
-  meetingLink: varchar("meeting_link"),
+  duration: int("duration").default(30), // minutes
+  type: varchar("type", { length: 50 }).notNull().default("consultation"), // consultation, portfolio_review
+  status: varchar("status", { length: 50 }).notNull().default("scheduled"), // scheduled, completed, cancelled, no_show
+  meetingLink: varchar("meeting_link", { length: 1000 }),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

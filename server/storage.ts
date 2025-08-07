@@ -22,6 +22,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, count, sql } from "drizzle-orm";
+import { randomUUID } from "crypto";
 
 // Interface for storage operations
 export interface IStorage {
@@ -65,11 +66,13 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: string): Promise<User | undefined> {
+    if (!db) throw new Error("Database not connected");
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
+    if (!db) throw new Error("Database not connected");
     const [user] = await db.select().from(users).where(eq(users.username, username));
     return user;
   }
@@ -80,9 +83,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(userData: InsertUser): Promise<User> {
+    const userWithId = { ...userData, id: randomUUID() };
     const [user] = await db
       .insert(users)
-      .values(userData)
+      .values(userWithId)
       .returning();
     return user;
   }
@@ -117,7 +121,8 @@ export class DatabaseStorage implements IStorage {
 
   // Lead operations
   async createLead(lead: InsertLead): Promise<Lead> {
-    const [newLead] = await db.insert(leads).values(lead).returning();
+    const leadWithId = { ...lead, id: randomUUID() };
+    const [newLead] = await db.insert(leads).values(leadWithId).returning();
     return newLead;
   }
 
@@ -146,7 +151,8 @@ export class DatabaseStorage implements IStorage {
 
   // Investment operations
   async createInvestment(investment: InsertInvestment): Promise<Investment> {
-    const [newInvestment] = await db.insert(investments).values(investment).returning();
+    const investmentWithId = { ...investment, id: randomUUID() };
+    const [newInvestment] = await db.insert(investments).values(investmentWithId).returning();
     return newInvestment;
   }
 
@@ -169,7 +175,8 @@ export class DatabaseStorage implements IStorage {
 
   // Booking operations
   async createBooking(booking: InsertBooking): Promise<Booking> {
-    const [newBooking] = await db.insert(bookings).values(booking).returning();
+    const bookingWithId = { ...booking, id: randomUUID() };
+    const [newBooking] = await db.insert(bookings).values(bookingWithId).returning();
     return newBooking;
   }
 
@@ -634,7 +641,16 @@ export class MemoryStorage implements IStorage {
   }
 }
 
-// Use memory storage for development, database storage for production
-export const storage = process.env.NODE_ENV === "production" 
-  ? new DatabaseStorage() 
-  : new MemoryStorage();
+// Use database storage if available, otherwise fall back to memory storage
+const createStorage = () => {
+  try {
+    if (db) {
+      return new DatabaseStorage();
+    }
+  } catch (error) {
+    console.log("Database storage failed, using memory storage");
+  }
+  return new MemoryStorage();
+};
+
+export const storage = createStorage();
