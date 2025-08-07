@@ -6,7 +6,7 @@ let pool: mysql.Pool | null = null;
 let db: any = null;
 
 // SingleStore connection configuration
-const createSingleStoreConnection = () => {
+const createSingleStoreConnection = async () => {
   const requiredEnvVars = [
     'SINGLESTORE_HOST',
     'SINGLESTORE_PORT', 
@@ -51,8 +51,15 @@ const createSingleStoreConnection = () => {
   }
 };
 
-// Initialize database connection
-db = createSingleStoreConnection();
+// Initialize database connection (async)
+let dbInitialized = false;
+const initializeDatabase = async () => {
+  if (!dbInitialized) {
+    db = await createSingleStoreConnection();
+    dbInitialized = true;
+  }
+  return db;
+};
 
 // Function to create tables if they don't exist
 export const initializeTables = async () => {
@@ -205,16 +212,20 @@ export const initializeTables = async () => {
       ) ENGINE=InnoDB
     `);
 
-    // Create default admin and investor users if they don't exist
+    // Create default admin and investor users with properly hashed passwords
+    // Hash for 'admin123' using scrypt with salt
+    const adminPasswordHash = '633dd4bc5833af9169681456b1135d0ee2fd4a409781807c3088272b52a1ba869aa5fc975ec017cc7abd5ea64df857db36e67c3e4da7d82f7c6fb78f405494ff.95a0d202ec185bd2f5a056ae71363f94';
+    const investorPasswordHash = 'def9a79f1060bc1de26a86a4e32a75bfa069eba026940aeb9399e21cb6d19540d4f9f3eace2fc6aeeccfd74d195b1d9e94382a9860eda8b543780b6a4d0b49af.58c428d076bcfa3a0571ab50538810de';
+    
     const adminUser = await pool!.execute(`
       INSERT IGNORE INTO users (id, username, email, password, role, first_name, last_name)
-      VALUES (UUID(), 'admin', 'admin@example.com', '$2a$10$5LhYpeVnJm1Vmc.d1cQ4.O3PYHxGGN7yE5gTnLp5Hd9TkV5FLZvym', 'admin', 'Admin', 'User')
-    `);
+      VALUES (UUID(), 'admin', 'admin@example.com', ?, 'admin', 'Admin', 'User')
+    `, [adminPasswordHash]);
 
     const investorUser = await pool!.execute(`
       INSERT IGNORE INTO users (id, username, email, password, role, first_name, last_name)
-      VALUES (UUID(), 'investor', 'investor@example.com', '$2a$10$5LhYpeVnJm1Vmc.d1cQ4.O3PYHxGGN7yE5gTnLp5Hd9TkV5FLZvym', 'investor', 'Investor', 'User')
-    `);
+      VALUES (UUID(), 'investor', 'investor@example.com', ?, 'investor', 'Investor', 'User')
+    `, [investorPasswordHash]);
 
     console.log("Database tables initialized successfully");
   } catch (error) {
@@ -223,4 +234,4 @@ export const initializeTables = async () => {
   }
 };
 
-export { pool, db };
+export { pool, db, initializeDatabase };

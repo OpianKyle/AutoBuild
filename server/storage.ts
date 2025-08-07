@@ -73,56 +73,59 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     if (!db) throw new Error("Database not connected");
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
+    const result = await db.select().from(users).where(eq(users.username, username));
+    return result[0];
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user;
+    if (!db) throw new Error("Database not connected");
+    const result = await db.select().from(users).where(eq(users.email, email));
+    return result[0];
   }
 
   async createUser(userData: InsertUser): Promise<User> {
+    if (!db) throw new Error("Database not connected");
     const userWithId = { ...userData, id: randomUUID() };
-    const [user] = await db
-      .insert(users)
-      .values(userWithId)
-      .returning();
+    await db.insert(users).values(userWithId);
+    // MySQL doesn't support RETURNING, so we need to fetch the inserted user
+    const [user] = await db.select().from(users).where(eq(users.id, userWithId.id));
     return user;
   }
 
   async upsertUser(userData: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.email,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+    if (!db) throw new Error("Database not connected");
+    const userWithId = { ...userData, id: randomUUID() };
+    try {
+      await db.insert(users).values(userWithId);
+    } catch (error) {
+      // If insert fails due to duplicate, update instead
+      await db.update(users)
+        .set({ ...userData, updatedAt: new Date() })
+        .where(eq(users.email, userData.email));
+    }
+    const [user] = await db.select().from(users).where(eq(users.email, userData.email));
     return user;
   }
 
   async updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<User> {
-    const [user] = await db
-      .update(users)
+    if (!db) throw new Error("Database not connected");
+    await db.update(users)
       .set({
         stripeCustomerId,
         stripeSubscriptionId,
         updatedAt: new Date(),
       })
-      .where(eq(users.id, userId))
-      .returning();
+      .where(eq(users.id, userId));
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
     return user;
   }
 
   // Lead operations
   async createLead(lead: InsertLead): Promise<Lead> {
+    if (!db) throw new Error("Database not connected");
     const leadWithId = { ...lead, id: randomUUID() };
-    const [newLead] = await db.insert(leads).values(leadWithId).returning();
+    await db.insert(leads).values(leadWithId);
+    const [newLead] = await db.select().from(leads).where(eq(leads.id, leadWithId.id));
     return newLead;
   }
 
@@ -141,18 +144,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateLead(id: string, updates: Partial<InsertLead>): Promise<Lead> {
-    const [lead] = await db
-      .update(leads)
+    if (!db) throw new Error("Database not connected");
+    await db.update(leads)
       .set({ ...updates, updatedAt: new Date() })
-      .where(eq(leads.id, id))
-      .returning();
+      .where(eq(leads.id, id));
+    const [lead] = await db.select().from(leads).where(eq(leads.id, id));
     return lead;
   }
 
   // Investment operations
   async createInvestment(investment: InsertInvestment): Promise<Investment> {
+    if (!db) throw new Error("Database not connected");
     const investmentWithId = { ...investment, id: randomUUID() };
-    const [newInvestment] = await db.insert(investments).values(investmentWithId).returning();
+    await db.insert(investments).values(investmentWithId);
+    const [newInvestment] = await db.select().from(investments).where(eq(investments.id, investmentWithId.id));
     return newInvestment;
   }
 
@@ -165,18 +170,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateInvestment(id: string, updates: Partial<InsertInvestment>): Promise<Investment> {
-    const [investment] = await db
-      .update(investments)
+    if (!db) throw new Error("Database not connected");
+    await db.update(investments)
       .set({ ...updates, updatedAt: new Date() })
-      .where(eq(investments.id, id))
-      .returning();
+      .where(eq(investments.id, id));
+    const [investment] = await db.select().from(investments).where(eq(investments.id, id));
     return investment;
   }
 
   // Booking operations
   async createBooking(booking: InsertBooking): Promise<Booking> {
+    if (!db) throw new Error("Database not connected");
     const bookingWithId = { ...booking, id: randomUUID() };
-    const [newBooking] = await db.insert(bookings).values(bookingWithId).returning();
+    await db.insert(bookings).values(bookingWithId);
+    const [newBooking] = await db.select().from(bookings).where(eq(bookings.id, bookingWithId.id));
     return newBooking;
   }
 
@@ -198,11 +205,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateBooking(id: string, updates: Partial<InsertBooking>): Promise<Booking> {
-    const [booking] = await db
-      .update(bookings)
+    if (!db) throw new Error("Database not connected");
+    await db.update(bookings)
       .set({ ...updates, updatedAt: new Date() })
-      .where(eq(bookings.id, id))
-      .returning();
+      .where(eq(bookings.id, id));
+    const [booking] = await db.select().from(bookings).where(eq(bookings.id, id));
     return booking;
   }
 
